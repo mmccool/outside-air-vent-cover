@@ -5,8 +5,8 @@ t = 0.01;
 
 base_t = 5;
 base_r = 3;
-base_w = 70;
-base_h = 100;
+base_w = 100;
+base_h = 130;
 base_sm = 2*sm;
 
 vent_r = 18;
@@ -33,6 +33,35 @@ module base() {
     translate([ base_w/2-base_r, base_h/2-base_r,0])
       cylinder(r=base_r,h=base_t,$fn=base_sm);
   }
+}
+
+rim_t = 10;
+rim_e = 3;
+rim_r = base_r - rim_e/2;
+module rim() {
+  translate([0,0,-rim_t])
+    difference() {
+      hull() {
+        translate([-base_w/2+base_r,-base_h/2+base_r,0])
+          cylinder(r=base_r,h=rim_t+t,$fn=base_sm);
+        translate([ base_w/2-base_r,-base_h/2+base_r,0])
+          cylinder(r=base_r,h=rim_t+t,$fn=base_sm);
+        translate([-base_w/2+base_r, base_h/2-base_r,0])
+          cylinder(r=base_r,h=rim_t+t,$fn=base_sm);
+        translate([ base_w/2-base_r, base_h/2-base_r,0])
+          cylinder(r=base_r,h=rim_t+t,$fn=base_sm);
+      }
+      hull() {
+        translate([-base_w/2+rim_r+rim_e,-base_h/2-rim_r,-t])
+          cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
+        translate([ base_w/2-rim_r-rim_e,-base_h/2-rim_r,-t])
+          cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
+        translate([-base_w/2+rim_r+rim_e, base_h/2-rim_r-rim_e,-t])
+          cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
+        translate([ base_w/2-rim_r-rim_e, base_h/2-rim_r-rim_e,-t])
+          cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
+      }
+    }
 }
 
 module vent() {
@@ -98,6 +127,7 @@ module assembly() {
   difference() {
     union() {
       base();
+      rim();
       cover();
     }
     vent();
