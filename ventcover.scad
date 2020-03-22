@@ -1,6 +1,6 @@
 // Outside Air Vent Cover
 // Michael McCool 2020
-sm = 10;
+sm = 30;
 t = 0.01;
 
 base_t = 5;
@@ -18,11 +18,12 @@ vent_e = 3;
 vent_s = 5;
 
 hole_r = 2;
-hole_R = 5;
+hole_R = 7;
+hole_b = hole_R;
 hole_o = 15;
 hole_sm = 3*sm;
 hole_h1 = 1;
-hole_h2 = hole_R+2;
+hole_h2 = 3;
 hole_xo = 82/2;
 hole_yo = 146/2;
 
@@ -74,6 +75,12 @@ module rim() {
         translate([ base_w/2-rim_r-rim_e, base_h/2-rim_r-rim_e,-t])
           cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
       }
+      rotate([-4,0,0]) 
+        translate([-base_w/2-t,5-base_h/2-7,-2*rim_t])
+          cube([base_w+2*t,base_h/2+20,2*rim_t]);
+      translate([0,base_h/2,0]) rotate([-4,0,0]) 
+        translate([-base_w/2-t,5-base_h/2-3,-2*rim_t])
+          cube([base_w+2*t,base_h/2+10,2*rim_t]);
     }
 }
 
@@ -162,9 +169,13 @@ module cover() {
 
 module hole() {
   translate([0,-hole_o,-t])
-    cylinder(r=hole_R,h=hole_h1+hole_h2+t,$fn=hole_sm);
-  translate([0,0,-t]) 
-      cylinder(r=hole_r,h=cover_R+cover_t,$fn=hole_sm);
+    cylinder(r=hole_R,h=hole_R+t,$fn=hole_sm);
+  hull() {
+    translate([0,0,hole_R+t]) 
+      cylinder(r=hole_b,h=cover_R+cover_t,$fn=hole_sm);
+    translate([0,-hole_o,hole_R+t]) 
+      cylinder(r=hole_b,h=cover_R+cover_t,$fn=hole_sm);
+  }
   hull() {
     translate([0,0,-t]) 
       cylinder(r=hole_r,h=hole_h1+t,$fn=hole_sm);
