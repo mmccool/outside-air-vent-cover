@@ -77,6 +77,8 @@ module rim() {
     }
 }
 
+vent_g = 10;
+
 module vent() {
   rotate(180) translate([0,0,-t])
     difference() {
@@ -90,6 +92,8 @@ module vent() {
       }
       translate([-base_w/2-2*t,-base_h/2-2*t,cover_F*cover_R-2*cover_t+base_t])
         cube([base_w+4*t,base_h+4*t,base_t+cover_R]);
+      translate([-base_w/2-2*t,base_h/2-vent_g,0])
+        cube([base_w+4*t,base_h,base_t+cover_R]);
 /*
       translate([-vent_r-2*t,vent_d,0])
         hull() {
@@ -102,6 +106,26 @@ module vent() {
     }
 }
 
+grill_r = 1;
+grill_sm = sm;
+module grill() {
+  intersection() {
+    union() {
+      for (j = [0 : 3*grill_r : cover_F*cover_R-2*cover_t]) { 
+        for (i = [-30*grill_r : 3*grill_r : 30*grill_r]) { 
+          translate([i,0,j+2*grill_r])
+            rotate([90,0,0]) 
+              cylinder(r=grill_r,h=base_h,$fn=grill_sm);
+        }
+      }
+    }
+    translate([0,0,base_t-t]) union() {
+      sphere(r=cover_R,$fn=cover_sm);
+      rotate([90,0,0])
+        cylinder(r=cover_r,h=cover_h+t,$fn=cover_sm);
+    }
+  }
+}
 
 module cover() {
   translate([0,0,base_t-t]) {
@@ -167,6 +191,7 @@ module assembly() {
       rim();
       cover();
     }
+    grill();
     vent();
     translate([hole_xo,hole_yo,0]) hole();
     translate([-hole_xo,hole_yo,0]) hole();
