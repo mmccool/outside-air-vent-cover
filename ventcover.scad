@@ -27,7 +27,7 @@ hole_h2 = 3;
 hole_xo = 82/2;
 hole_yo = 146/2;
 
-cover_t = 2;
+cover_t = 3;
 cover_r = hole_xo - hole_R - 5;
 cover_R = vent_r + cover_t;
 cover_h = base_h/2 + t;
@@ -118,9 +118,12 @@ grill_sm = sm;
 module grill() {
   intersection() {
     union() {
-      for (j = [0 : 3*grill_r : cover_F*cover_R-2*cover_t]) { 
+      s = sin(45)*3*grill_r;
+      for (jj = [0 : 1 : (cover_F*cover_R-2*cover_t)/s+1]) { 
+        oo = (jj % 2 == 0) ? 0 : 1.5*grill_r;
+        j = jj*s;
         for (i = [-30*grill_r : 3*grill_r : 30*grill_r]) { 
-          translate([i,0,j+2*grill_r])
+          translate([i+oo,0,j+2*grill_r])
             rotate([90,0,0]) 
               cylinder(r=grill_r,h=base_h,$fn=grill_sm);
         }
@@ -134,10 +137,12 @@ module grill() {
   }
 }
 
+cover_c = 2*base_r;
 module cover() {
   translate([0,0,base_t-t]) {
     difference() {
       hull() {
+/*
         difference() {
           union() {
             sphere(r=cover_R,$fn=cover_sm);
@@ -146,6 +151,17 @@ module cover() {
           }
           translate([-base_w/2-2*t,-base_h/2-2*t,cover_F*cover_R])
             cube([base_w+4*t,base_h+4*t,base_t+cover_R]);
+        }
+*/
+        translate([0,0,cover_F*cover_R-base_t-t]) hull() {
+          translate([-base_w/2+base_r+cover_c,-base_h/2+base_r+cover_c,0])
+            cylinder(r=base_r,h=t,$fn=base_sm);
+          translate([ base_w/2-base_r-cover_c,-base_h/2+base_r+cover_c,0])
+            cylinder(r=base_r,h=t,$fn=base_sm);
+          translate([-base_w/2+base_r+cover_c, base_h/2-base_r-cover_c,0])
+            cylinder(r=base_r,h=t,$fn=base_sm);
+          translate([ base_w/2-base_r-cover_c, base_h/2-base_r-cover_c,0])
+            cylinder(r=base_r,h=t,$fn=base_sm);
         }
         base();
       }
@@ -166,15 +182,14 @@ module cover() {
   }
 }
 
-
 module hole() {
   translate([0,-hole_o,-t])
     cylinder(r=hole_R,h=hole_R+t,$fn=hole_sm);
   hull() {
     translate([0,0,hole_R+t]) 
-      cylinder(r=hole_b,h=cover_R+cover_t,$fn=hole_sm);
+      cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
     translate([0,-hole_o,hole_R+t]) 
-      cylinder(r=hole_b,h=cover_R+cover_t,$fn=hole_sm);
+      cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
   }
   hull() {
     translate([0,0,-t]) 
