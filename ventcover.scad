@@ -5,8 +5,8 @@ t = 0.01;
 
 base_t = 5;
 base_r = 3;
-base_w = 118;
-base_h = 170;
+base_w = 125;
+base_h = 175;
 base_e = 1;
 base_sm = 2*sm;
 
@@ -24,17 +24,18 @@ hole_o = 15;
 hole_sm = 3*sm;
 hole_h1 = 1;
 hole_h2 = 3;
-hole_xo = 82/2;
+hole_xo = 81/2;
 hole_yo = 146/2;
 
-cover_t = 3;
+cover_t = 4;
 cover_r = hole_xo - hole_R - 5;
 cover_R = vent_r + cover_t;
 cover_h = base_h/2 + t;
-cover_F = 0.6;
+cover_F = 0.7;
 cover_sm = 5*sm;
 
-rim_t = 10;
+rim_t = 15;
+rim_a = 8.5;
 rim_e = 3;
 rim_r = base_r - rim_e/2;
 
@@ -50,7 +51,6 @@ module base() {
       cylinder(r=base_r,h=base_t,$fn=base_sm);
   }
 }
-
 
 module rim() {
   translate([0,0,-rim_t])
@@ -75,12 +75,14 @@ module rim() {
         translate([ base_w/2-rim_r-rim_e, base_h/2-rim_r-rim_e,-t])
           cylinder(r=rim_r,h=rim_t+3*t,$fn=base_sm);
       }
-      rotate([-4,0,0]) 
-        translate([-base_w/2-t,5-base_h/2-7,-2*rim_t])
-          cube([base_w+2*t,base_h/2+20,2*rim_t]);
-      translate([0,base_h/2,0]) rotate([-4,0,0]) 
-        translate([-base_w/2-t,5-base_h/2-3,-2*rim_t])
-          cube([base_w+2*t,base_h/2+10,2*rim_t]);
+      translate([0,0,0])
+        rotate([-rim_a,0,0]) 
+          translate([-base_w/2-t,5-base_h/2-7,-2*rim_t])
+            cube([base_w+2*t,base_h/2+20,2*rim_t]);
+      translate([0,base_h/2,0]) 
+        rotate([-rim_a,0,0]) 
+          translate([-base_w/2-t,5-base_h/2-3,-2*rim_t])
+            cube([base_w+2*t,base_h/2+10,2*rim_t]);
     }
 }
 
@@ -113,19 +115,21 @@ module vent() {
     }
 }
 
-grill_r = 1;
+grill_r = 1.5;
 grill_sm = sm;
 module grill() {
   intersection() {
     union() {
-      s = sin(45)*3*grill_r;
-      for (jj = [0 : 1 : (cover_F*cover_R-2*cover_t)/s+1]) { 
-        oo = (jj % 2 == 0) ? 0 : 1.5*grill_r;
+      s = sin(60)*3*grill_r;
+      for (jj = [0 : 1 : (cover_F*cover_R-2*cover_t)/s]) { 
+        oo = (jj % 2 == 0) ? 0 : 0*1.5*grill_r;
         j = jj*s;
-        for (i = [-30*grill_r : 3*grill_r : 30*grill_r]) { 
+        for (ii = [-6+jj/2 : 1 : 6-jj/2]) { 
+          i = ii*3*grill_r;
           translate([i+oo,0,j+2*grill_r])
             rotate([90,0,0]) 
-              cylinder(r=grill_r,h=base_h,$fn=grill_sm);
+              translate([0,0,cover_R])
+                cylinder(r=grill_r,h=base_h,$fn=grill_sm);
         }
       }
     }
@@ -187,9 +191,11 @@ module hole() {
     cylinder(r=hole_R,h=hole_R+t,$fn=hole_sm);
   hull() {
     translate([0,0,hole_R+t]) 
-      cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
+      // cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
+      cylinder(r=hole_b,h=cover_F*cover_R-hole_R,$fn=hole_sm);
     translate([0,-hole_o,hole_R+t]) 
-      cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
+      // cylinder(r1=hole_b,r2=hole_r,h=cover_F*cover_R-hole_R,$fn=hole_sm);
+      cylinder(r=hole_b,h=cover_F*cover_R-hole_R,$fn=hole_sm);
   }
   hull() {
     translate([0,0,-t]) 
