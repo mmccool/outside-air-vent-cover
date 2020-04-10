@@ -3,6 +3,12 @@
 sm = 30;
 t = 0.01;
 
+// print scale correction
+sc = true;
+sx = sc ? 0.97*15.2/15.6 : 1.0;
+sy = sc ? 0.97*15.2/15.6 : 1.0;
+sz = sc ? 15.2/14 : 1.0;
+
 base_t = 5;
 base_r = 3;
 base_w = 125;
@@ -236,4 +242,12 @@ module assembly() {
 //vent();
 //cover();
 //hole();
-assembly();
+//assembly();
+
+// PRINT
+module print_assembly() {
+  scale([sx,sy,sz]) 
+    rotate([0,180,90])
+      assembly();
+}
+print_assembly();
