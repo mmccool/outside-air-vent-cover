@@ -33,7 +33,7 @@ hole_h2 = 3;
 hole_xo = 81/2;
 hole_yo = 146/2;
 
-cover_t = 4;
+cover_t = 5;
 cover_r = hole_xo - hole_R - 5;
 cover_R = vent_r + cover_t;
 cover_h = base_h/2 + t;
@@ -121,21 +121,24 @@ module vent() {
     }
 }
 
-grill_r = 1.5;
-grill_sm = sm;
+grill_r = 1.8;
+grill_s = 0.8*grill_r;
+grill_o = 0.5*grill_r;
+grill_sm = 6; // sm;
 module grill() {
   intersection() {
     union() {
-      s = sin(60)*3*grill_r;
+      s = sin(60)*3*grill_s;
       for (jj = [0 : 1 : (cover_F*cover_R-2*cover_t)/s]) { 
-        oo = (jj % 2 == 0) ? 0 : 0*1.5*grill_r;
+        oo = (jj % 2 == 0) ? 0 : 0*1.5*grill_s;
         j = jj*s;
         for (ii = [-6+jj/2 : 1 : 6-jj/2]) { 
-          i = ii*3*grill_r;
-          translate([i+oo,0,j+2*grill_r])
+          i = ii*3*grill_s;
+          translate([i+oo,0,j+2*grill_s+grill_o])
             rotate([90,0,0]) 
               translate([0,0,cover_R])
-                cylinder(r=grill_r,h=base_h,$fn=grill_sm);
+                rotate(30) 
+                  cylinder(r=grill_r,h=base_h,$fn=grill_sm);
         }
       }
     }
@@ -222,6 +225,33 @@ module hole() {
     }
 }
 
+ridge_r = 2;
+ridge_h = 4*ridge_r+base_w/(2*cos(45));
+ridge_sm = 6;
+ridge_eps = 0.00001;
+module half_ridges(a=0) {
+  for (dy = [-base_h/2 : 5*ridge_r : 3*base_h/4]) {
+    translate([0,dy+3,cover_F*cover_R])
+      rotate([0,0,a-45])
+        rotate([0,90,0])
+          translate([0,0,-2*ridge_r])
+            rotate([0,0,30])
+              cylinder(r=ridge_r,h=ridge_h,$fn=ridge_sm);
+  }
+}
+module ridges() {
+  intersection() {
+    half_ridges(0);
+    translate([-ridge_eps,-base_h/2-1,-1])
+      cube([base_w/2+ridge_eps+1,base_h+2,cover_F*cover_R+2*ridge_r+1]);
+  }
+  intersection() {
+    half_ridges(270);
+    translate([-base_w/2-1+ridge_eps,-base_h/2-1,-1])
+      cube([base_w/2+ridge_eps+1,base_h+2,cover_F*cover_R+2*ridge_r+1]);
+  }
+}
+
 module assembly() {
   difference() {
     union() {
@@ -229,8 +259,9 @@ module assembly() {
       rim();
       cover();
     }
-    grill();
-    vent();
+    color([1,0,0]) ridges();
+    color([0,1,0]) grill();
+    color([0,0,1]) vent();
     translate([hole_xo,hole_yo,0]) hole();
     translate([-hole_xo,hole_yo,0]) hole();
     translate([hole_xo,-hole_yo,0]) hole();
@@ -243,6 +274,14 @@ module assembly() {
 //cover();
 //hole();
 //assembly();
+module assembly_cutaway() {
+  intersection() {
+    assembly();
+    translate([-base_w/2-1+ridge_eps,0,-1])
+      cube([base_w/2+ridge_eps+1,base_h+2,cover_F*cover_R+2*ridge_r+1]);
+  }
+}
+//assembly_cutaway();
 
 // PRINT
 module print_assembly() {
