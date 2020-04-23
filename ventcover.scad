@@ -3,10 +3,10 @@
 sm = 30;
 t = 0.01;
 
-// print scale correction
+// print scale correction (for Makerbot Replicator 2; after calibration)
 sc = true;
-sx = sc ? 0.97*15.2/15.6 : 1.0;
-sy = sc ? 0.97*15.2/15.6 : 1.0;
+sx = sc ? 15.2/15.6 : 1.0;
+sy = sc ? 15.2/15.6 : 1.0;
 sz = sc ? 15.2/14 : 1.0;
 
 base_t = 5;
@@ -232,11 +232,12 @@ ridge_eps = 0.00001;
 module half_ridges(a=0) {
   for (dy = [-base_h/2 : 5*ridge_r : 3*base_h/4]) {
     translate([0,dy+3,cover_F*cover_R])
-      rotate([0,0,a-45])
-        rotate([0,90,0])
-          translate([0,0,-2*ridge_r])
-            rotate([0,0,30])
-              cylinder(r=ridge_r,h=ridge_h,$fn=ridge_sm);
+      scale([1,1,1.4])
+        rotate([0,0,a-45])
+          rotate([0,90,0])
+            translate([0,0,-2*ridge_r])
+              rotate([0,0,0])
+                cylinder(r=ridge_r,h=ridge_h,$fn=ridge_sm);
   }
 }
 module ridges() {
