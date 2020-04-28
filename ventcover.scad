@@ -16,7 +16,7 @@ base_h = 175;
 base_e = 1;
 base_sm = 2*sm;
 
-vent_r = 130 - base_h/2;
+vent_r = 140 - base_h/2;
 vent_sm = 5*sm;
 vent_f = 0.3;
 vent_d = -vent_r-t + 2*vent_f*vent_r;
@@ -37,7 +37,7 @@ cover_t = 5;
 cover_r = hole_xo - hole_R - 5;
 cover_R = vent_r + cover_t;
 cover_h = base_h/2 + t;
-cover_F = 0.7;
+cover_F = 0.8;
 cover_sm = 5*sm;
 
 rim_t = 15;
@@ -101,9 +101,14 @@ module vent() {
         //cylinder(r=vent_r,h=base_t+2*t,$fn=vent_sm);
         translate([0,0,base_t])
           sphere(r=vent_r,$fn=vent_sm);
-        translate([0,cover_h,base_t])
-          //cylinder(r=cover_r-cover_t,h=base_t+2*t,$fn=vent_sm);
-          sphere(r=cover_r-cover_t,$fn=vent_sm);
+        hull() {
+          translate([0,cover_h,base_t])
+            //cylinder(r=cover_r-cover_t,h=base_t+2*t,$fn=vent_sm);
+            sphere(r=cover_r-cover_t,$fn=vent_sm);
+          translate([0,cover_h,base_t+vent_r-cover_r+cover_t])
+            //cylinder(r=cover_r-cover_t,h=base_t+2*t,$fn=vent_sm);
+            sphere(r=cover_r-cover_t,$fn=vent_sm);
+        }
       }
       translate([-base_w/2-2*t,-base_h/2-2*t,cover_F*cover_R-2*cover_t+base_t])
         cube([base_w+4*t,base_h+4*t,base_t+cover_R]);
@@ -130,11 +135,12 @@ module grill() {
     union() {
       s = sin(60)*3*grill_s;
       for (jj = [0 : 1 : (cover_F*cover_R-2*cover_t)/s]) { 
-        oo = (jj % 2 == 0) ? 0 : 0*1.5*grill_s;
+        oo = (jj % 2 == 0) ? 0 : 0.5;
         j = jj*s;
-        for (ii = [-6+jj/2 : 1 : 6-jj/2]) { 
+        //for (ii = [-6+jj/2 : 1 : 6-jj/2]) { 
+        for (ii = [-6-oo : 1 : 6+oo]) { 
           i = ii*3*grill_s;
-          translate([i+oo,0,j+2*grill_s+grill_o])
+          translate([i,0,j+2*grill_s+grill_o])
             rotate([90,0,0]) 
               translate([0,0,cover_R])
                 rotate(30) 
@@ -142,11 +148,16 @@ module grill() {
         }
       }
     }
-    translate([0,0,base_t-t]) union() {
-      sphere(r=cover_R,$fn=cover_sm);
-      rotate([90,0,0])
-        cylinder(r=cover_r,h=cover_h+t,$fn=cover_sm);
+/*
+    translate([0,0,base_t-t]) 
+      hull() {
+        sphere(r=cover_R,$fn=cover_sm);
+        rotate([90,0,0])
+          cylinder(r=cover_r,h=cover_h+t,$fn=cover_sm);
+        rotate([90,0,0])
+          cylinder(r=cover_r,h=cover_h+t,$fn=cover_sm);
     }
+*/
   }
 }
 
@@ -253,7 +264,26 @@ module ridges() {
   }
 }
 
+brim_r = 5;
+brim_w = base_w;
+base_eh = 50;
+brim_h = base_h + base_eh;
+brim_t = 2*0.15 + 0.001;
+module brim() {
+  hull() {
+    translate([-brim_w/2+brim_r,-brim_h/2+brim_r,cover_F*cover_R])
+      cylinder(r=brim_r,h=brim_t);
+    translate([ brim_w/2-brim_r,-brim_h/2+brim_r,cover_F*cover_R])
+      cylinder(r=brim_r,h=brim_t);
+    translate([-brim_w/2+brim_r,brim_h/2-brim_r,cover_F*cover_R])
+      cylinder(r=brim_r,h=brim_t);
+    translate([ brim_w/2-brim_r,brim_h/2-brim_r,cover_F*cover_R])
+      cylinder(r=brim_r,h=brim_t);
+  }
+}
+
 module assembly() {
+  //color([1,0,1]) brim();
   difference() {
     union() {
       base();
@@ -274,11 +304,11 @@ module assembly() {
 //vent();
 //cover();
 //hole();
-//assembly();
+assembly();
 module assembly_cutaway() {
   intersection() {
     assembly();
-    translate([-base_w/2-1+ridge_eps,0,-1])
+    translate([-base_w/2-1+ridge_eps+0,-74,-1])
       cube([base_w/2+ridge_eps+1,base_h+2,cover_F*cover_R+2*ridge_r+1]);
   }
 }
@@ -290,4 +320,5 @@ module print_assembly() {
     rotate([0,180,90])
       assembly();
 }
-print_assembly();
+// print_assembly();
+//scale([sx,sy,1]) brim();
