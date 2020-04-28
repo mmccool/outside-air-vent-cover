@@ -265,10 +265,11 @@ module ridges() {
 }
 
 brim_r = 5;
-brim_w = base_w;
-base_eh = 50;
-brim_h = base_h + base_eh;
-brim_t = 2*0.15 + 0.001;
+brim_ew = 5;
+brim_w = base_w+ brim_ew ;
+brim_eh = 35;
+brim_h = base_h + brim_eh;
+brim_t = (2*0.15 + 0.001)/sz;
 module brim() {
   hull() {
     translate([-brim_w/2+brim_r,-brim_h/2+brim_r,cover_F*cover_R])
@@ -304,7 +305,7 @@ module assembly() {
 //vent();
 //cover();
 //hole();
-assembly();
+//assembly();
 module assembly_cutaway() {
   intersection() {
     assembly();
@@ -318,7 +319,10 @@ module assembly_cutaway() {
 module print_assembly() {
   scale([sx,sy,sz]) 
     rotate([0,180,90])
-      assembly();
+      union() {
+        brim();
+        assembly();
+      }
 }
-// print_assembly();
+print_assembly();
 //scale([sx,sy,1]) brim();
